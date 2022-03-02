@@ -135,21 +135,21 @@ class Ticket:
 
         #Insert Title 
         pdf.set_font(family='Times', size = 24, style='B')
-        pdf.cell(w=0, h=80, txt='Cinema Ticket Confirmation', border=0, align='C', ln=1)
+        pdf.cell(w=0, h=80, txt='Your Digital Ticket', border=1, align='C', ln=1)
 
         #Insert Ticket ID, Name, Price, and Seat
         pdf.set_font(family= "Times", size=14, style ='B')
-        pdf.cell(w=100, h=40, txt='Ticket ID:', border=0)
-        pdf.cell(w=150, h=40, txt= self.id, border=0, ln=1)
+        pdf.cell(w=100, h=40, txt='Ticket ID:', border=1)
+        pdf.cell(w=150, h=40, txt= self.id, border=1, ln=1)
 
-        pdf.cell(w=100, h=25, txt="Name:", border=0)
-        pdf.cell(w=150, h=25, txt=self.user, border=0, ln=1)
+        pdf.cell(w=100, h=25, txt="Name:", border=1)
+        pdf.cell(w=150, h=25, txt=self.user, border=1, ln=1)
 
-        pdf.cell(w=100, h=25, txt="Price:", border=0)
-        pdf.cell(w=150, h=25, txt=str(self.price), border=0, ln=1)
+        pdf.cell(w=100, h=25, txt="Price:", border=1)
+        pdf.cell(w=150, h=25, txt=str(self.price), border=1, ln=1)
 
-        pdf.cell(w=100, h=25, txt="Seat ID:", border=0)
-        pdf.cell(w=150, h=25, txt=self.seat, border=0, ln=1)
+        pdf.cell(w=100, h=25, txt="Seat ID:", border=1)
+        pdf.cell(w=150, h=25, txt=self.seat, border=1, ln=1)
 
 
         #Change directory, Print the Pdf
