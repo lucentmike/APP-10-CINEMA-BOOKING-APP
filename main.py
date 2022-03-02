@@ -1,7 +1,8 @@
-from re import search
 import sqlite3
-import fpdf 
-
+from fpdf import FPDF
+import uuid
+import webbrowser
+import os
 
 #Create a class for the User that takes in the name, and has a buy method that takes the seat and credit card information 
 class User:
@@ -10,12 +11,17 @@ class User:
         self.name = name
 
 
-    # def buy(self, seat, card):
-    #     if user_seat.is_free() == True:
-    #         user_seat.occupy() 
-            
-    #     else:
-    #         print("That Seat Is Taken!")
+    def buy(self, seat, card):
+        if user_seat.is_free() == True:
+            if user_card.validate(user_seat.price) == False:
+                 print("There Was An Error With The Card!")
+            else:
+                print ("Card Accepted, Ticket Purchased!") 
+                user_seat.occupy() 
+                user_ticket = Ticket(id = uuid.uuid4().hex[:8], user= user.name, price = user_seat.price, seat = user_seat.seat_id)
+                user_ticket.to_pdf()
+        else:
+             print("That Seat Is Taken!")
 
 
 #Create a class for the Seat, that takes in database, seat_id, price. Has a is_free function and occupy fnction to check seat avalibility
@@ -54,6 +60,8 @@ class Seat:
 
         if int(results[0][0]) == 0:
             return True
+        else:
+            return False
 
 
     def occupy(self):
@@ -81,7 +89,30 @@ class Card:
 
 
     def validate(self, price):
-        pass
+        connection = sqlite3.connect(self.database)
+        cursor = connection.cursor() 
+        cursor.execute("""
+        SELECT "balance" FROM "Card" WHERE "type" = ? AND "number" = ? AND "cvc" = ? AND "holder" = ?
+
+
+""", [self.type, self.number, self.cvc, self.holder])
+
+        results = cursor.fetchall()
+        connection.close()
+
+        if len(results) == 0:
+            return False
+        else:
+            connection = sqlite3.connect(self.database)
+            connection.execute("""
+            UPDATE "Card" SET "balance"= balance - ? WHERE "type" = ? AND "number" = ? AND "cvc" = ? AND "holder" = ?
+
+        """, [price, self.type, self.number, self.cvc, self.holder])
+
+            connection.commit()
+            connection.close()
+            return True 
+            
 
 
 #Create a Ticket class that takes in the id, user, price, seat and to_pdf class that prints out a PDF receipt 
@@ -95,8 +126,37 @@ class Ticket:
         self.seat = seat
 
     
-    def to_pdf(path):
-        pass
+    def to_pdf(self):
+
+        filename = str(self.user + "_confirmation")
+
+        pdf = FPDF(orientation='P', unit='pt', format='A4')
+        pdf.add_page()
+
+        #Insert Title 
+        pdf.set_font(family='Times', size = 24, style='B')
+        pdf.cell(w=0, h=80, txt='Cinema Ticket Confirmation', border=0, align='C', ln=1)
+
+        #Insert Ticket ID, Name, Price, and Seat
+        pdf.set_font(family= "Times", size=14, style ='B')
+        pdf.cell(w=100, h=40, txt='Ticket ID:', border=0)
+        pdf.cell(w=150, h=40, txt= self.id, border=0, ln=1)
+
+        pdf.cell(w=100, h=25, txt="Name:", border=0)
+        pdf.cell(w=150, h=25, txt=self.user, border=0, ln=1)
+
+        pdf.cell(w=100, h=25, txt="Price:", border=0)
+        pdf.cell(w=150, h=25, txt=str(self.price), border=0, ln=1)
+
+        pdf.cell(w=100, h=25, txt="Seat ID:", border=0)
+        pdf.cell(w=150, h=25, txt=self.seat, border=0, ln=1)
+
+
+        #Change directory, Print the Pdf
+        pdf.output(filename)
+
+        #Open PDF automaticlly, if windows : webbrowser.open(self.filename)
+        webbrowser.open('file://'+os.path.realpath(filename))
     
 
 user = User(name = input("Your Full Name: "))
@@ -105,6 +165,4 @@ user_seat = Seat(seat_id = input("Which Seat would you like to purchase?: "))
 
 user_card = Card(type = input("Enter your card Type: "), number = input("Enter your card Number: "), cvc = input("Enter your card CVC: "), holder = input("Enter your card holder Name: "))
 
-#user.buy(seat=user_seat, card=user_card)
-
-print (f'{user_seat.price}')
+user.buy(user_seat, user_card)
