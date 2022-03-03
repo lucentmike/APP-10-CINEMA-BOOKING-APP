@@ -159,10 +159,12 @@ class Ticket:
         webbrowser.open('file://'+os.path.realpath(filename))
     
 
-user = User(name = input("Your Full Name: "))
+if __name__ == "__main__":
 
-user_seat = Seat(seat_id = input("Which Seat would you like to purchase?: "))
+    user = User(name = input("Your Full Name: "))
 
-user_card = Card(type = input("Enter your card Type: "), number = input("Enter your card Number: "), cvc = input("Enter your card CVC: "), holder = input("Enter your card holder Name: "))
+    user_seat = Seat(seat_id = input("Which Seat would you like to purchase?: "))
 
-user.buy(user_seat, user_card)
+    user_card = Card(type = input("Enter your card Type: "), number = input("Enter your card Number: "), cvc = input("Enter your card CVC: "), holder = input("Enter your card holder Name: "))
+
+    user.buy(user_seat, user_card)
