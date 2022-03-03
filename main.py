@@ -12,13 +12,13 @@ class User:
 
 
     def buy(self, seat, card):
-        if user_seat.is_free() == True:
-            if user_card.validate(user_seat.price) == False:
+        if seat.is_free() == True:
+            if card.validate(seat.price) == False:
                  print("There Was An Error With The Card!")
             else:
                 print ("Card Accepted, Ticket Purchased!") 
-                user_seat.occupy() 
-                user_ticket = Ticket(id = uuid.uuid4().hex[:8], user= user.name, price = user_seat.price, seat = user_seat.seat_id)
+                seat.occupy() 
+                user_ticket = Ticket(id = uuid.uuid4().hex[:8], user= self.name, price = seat.price, seat = seat.seat_id)
                 user_ticket.to_pdf()
         else:
              print("That Seat Is Taken!")
@@ -31,7 +31,7 @@ class Seat:
         self.database = database
         self.seat_id = seat_id
 
-        connection = sqlite3.connect("cinema.db")
+        connection = sqlite3.connect(self.database)
         cursor = connection.cursor() 
         cursor.execute("""
         SELECT "price" FROM "Seat" WHERE "seat_id" = ?
@@ -47,7 +47,7 @@ class Seat:
 
     def is_free(self):
 
-        connection = sqlite3.connect("cinema.db")
+        connection = sqlite3.connect(self.database)
         cursor = connection.cursor() 
         cursor.execute("""
         SELECT "taken" FROM "Seat" WHERE "seat_id" = ?
@@ -66,7 +66,7 @@ class Seat:
 
     def occupy(self):
 
-        connection = sqlite3.connect("cinema.db")
+        connection = sqlite3.connect(self.database)
         connection.execute("""
         UPDATE "Seat" SET "taken"=1 WHERE "seat_id" = ?
 
